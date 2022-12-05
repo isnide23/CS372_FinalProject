@@ -65,12 +65,19 @@ def run_server(port):
         #   the client hung up
         #   remove the socket from the set
                 if not packet:
-                    print(f"{ready_socket.getpeername()}: disconnected")
-
+                    print(f"{client_dict[ready_socket]}: disconnected")
+                    leave_payload = {"type": "leave",
+                        "nick": client_dict[ready_socket]
+                        }
+                    for clients in read_set:
+                        if clients != s: 
+                            clients.sendall(build_packet(leave_payload))
+                            print(f"LEAVE PAYLOAD: {build_packet(leave_payload)}")
                     read_set.remove(ready_socket)
                 else:
                     decoded_packet = decode_packet(packet)
                     # CASES:
+                    # hello & join
                     # if hello packet add nick to connected client dictionary
                     # broadcast a join message to all clients except the sender
                     if decoded_packet['type'] == 'hello':
@@ -87,10 +94,17 @@ def run_server(port):
                     
                     # chat
                     elif decoded_packet['type'] == 'chat':
-                        
-                        pass 
-                    # join
+                        # server should broadcast chat message to all clients excpet sender
+                        print(f"CHAT PAYLOAD: {build_packet(decoded_packet)}")
+                        decoded_packet["nick"] = client_dict[ready_socket]
+                        for clients in read_set:
+                            if clients != s: 
+                                clients.sendall(build_packet(decoded_packet))
+                                print(f"CHAT PAYLOAD: {build_packet(decoded_packet)}")
                     # disconnect
+                    elif decode_packet['type'] == 'leave':
+                        # server should broadcast leave message to all clients
+                        pass
                     else:
                         pass
                    

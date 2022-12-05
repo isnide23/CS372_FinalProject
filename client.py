@@ -58,6 +58,15 @@ def runner():
     while True:
         packet = get_next_packet(s)
         decoded_packet = decode_packet(packet)
+        # join broadcast
+        if decoded_packet['type'] == 'join' and decoded_packet['nick'] != nick:
+            print_message(f"*** {decoded_packet['nick']} has joined the chat")
+        elif decoded_packet['type'] == 'chat' and decoded_packet['nick'] != nick:
+            print_message(f"{decoded_packet['nick']}: {decoded_packet['message']}")
+        elif decoded_packet['type'] == 'leave' and decoded_packet['nick'] != nick:
+            print_message(f"*** {decoded_packet['nick']} has left the chat")
+        else:
+            pass
        
 init_windows()
 
@@ -80,12 +89,10 @@ while True:
     print_message(f">>> {command}")
     chat_dict["message"] = command
     s.sendall(build_packet(chat_dict))
-    packet = decode_packet(get_next_packet(s))
-    if packet['type'] == 'join':
-        print("someone joined")
     
 
 end_windows()
+
 
 
 
