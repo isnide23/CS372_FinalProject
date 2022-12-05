@@ -85,10 +85,12 @@ while True:
         command = read_command(f"{hello_dict['nick']}> ")
     except:
         break
-
-    print_message(f">>> {command}")
-    chat_dict["message"] = command
-    s.sendall(build_packet(chat_dict))
+    if command.startswith('\\q'):
+        sys.exit()
+    else:
+        print_message(f">>> {command}")
+        chat_dict["message"] = command
+        s.sendall(build_packet(chat_dict))
     
 
 end_windows()
